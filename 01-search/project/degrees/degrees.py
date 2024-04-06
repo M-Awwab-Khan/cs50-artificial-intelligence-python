@@ -82,6 +82,7 @@ def main():
             person2 = people[path[i + 1][1]]["name"]
             movie = movies[path[i + 1][0]]["title"]
             print(f"{i + 1}: {person1} and {person2} starred in {movie}")
+    # print(neighbors_for_person(source))
 
 
 def shortest_path(source, target):
@@ -92,8 +93,43 @@ def shortest_path(source, target):
     If no possible path, returns None.
     """
 
-    # TODO
-    raise NotImplementedError
+    # For keeping track of how many nodes have been explored
+    num_explored = 0
+
+    start = Node(state=source, parent=None, action=None)
+    frontier = QueueFrontier()
+    frontier.add(start)
+
+    # Set of explored actors
+    explored = set()
+    
+    while True:
+        if frontier.empty():
+            return None
+        
+        node = frontier.remove()
+        #print(f"Exploring {node.state}")
+        num_explored += 1
+
+        # Mark actor (node) as explored
+        explored.add(node.state)
+        # Find the neighbors (actors to which he can connect) of the actor
+        neighbors = neighbors_for_person(node.state)
+        for movie, actor in neighbors:
+            if actor not in explored and not frontier.contains_state(actor):
+                child = Node(state=actor, parent=node, action=movie)
+                if child.state == target:
+                    # Return list of tuples (movie_id, actor_id)
+                    path = []
+                    node = child
+                    while node.parent is not None:
+                        path.append((node.action, node.state))
+                        node = node.parent
+                    path.reverse()
+                    print(f"{len(explored)} actors explored to find the solution")
+                    return path
+                frontier.add(child)
+
 
 
 def person_id_for_name(name):
